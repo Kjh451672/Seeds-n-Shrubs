@@ -8,7 +8,14 @@
   </head>
   <body>
     {% include "components/navbar.html.jinja"%}
-    <h1>Greenery for Sale</h1>
+    <h1>Browse</h1>
+
+    <form class = "container" action = "/browse">
+        <div class="input-group mb-3">
+            <input type="text" name = "query" class="form-control" placeholder="Search..." aria-label="Search..." value="{{ query }}">
+            <button class="btn btn-outline-success " type="submit">Search</button>
+        </div>
+    </form>
 
     <main class = "container row g-4 mx-auto">
     {% for item in products %}
@@ -19,7 +26,7 @@
             <div class="card-body">
                 <h5 class="card-title"> {{item["product"]}}</h5>
                 <p class="card-text">${{item["price"]}}</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
+                <a href="#" class="btn btn-success">View Product</a>
             </div>
         </div>
     </div>
