@@ -9,20 +9,22 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body>
+<body style = "background-color:rgb(168, 250, 176)">
     {% include "components/navbar.html.jinja"%}
     <div class = "container">
       <div class = "row">
-        <div class = "col-5">
-          <img src="{{product['image']}}" class="rounded mt-auto p-5" alt="{{product['product']}}" height = "450px">
-        </div>
         <div class = "col-4">
-        <h1 class = "text-success"> {{product["product"]}}</h1>
+          <img src="{{product['image']}}" class="rounded mt-auto p-4" alt="{{product['product']}}" height = "260px">
+        </div>
+        <div class = "col-5">
+        <h1 class = "text-success mt-auto p-2"> {{product["product"]}}</h1>
         <br>
-        <p class = "text-success">{{product["description"]}}</p>
+        <p class = "text-success ">{{product["description"]}}</p>
         </div>
         <div class = "col-3">
-        <p class = "text-success ">${{product["price"]}}</p>
+        <h2 class = "text-success mt-auto p-2">${{product["price"]}}</h2>
+        <br>
+        <button type="button" class="btn btn-success">Add To Cart</button>
         </div>
       </div>
     </div>

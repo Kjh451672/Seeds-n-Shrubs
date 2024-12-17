@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, flash
 import pymysql
 from dynaconf import Dynaconf
 
@@ -7,6 +7,10 @@ app = Flask(__name__)
 conf = Dynaconf(
     settings_file = ["settings.toml"]
 )
+
+
+app.secret_key = conf.secret_key
+
 
 def connect_db():
     conn = pymysql.connect(
@@ -60,3 +64,52 @@ def product_page(product_id):
     conn.close()
 
     return render_template("product.html.jinja", product = result)
+
+
+@app.route("/sign_up", methods =["POST", "GET"])
+def sign_up_page():
+
+    if request.method == 'POST':
+
+        first_name = request.form["first_name"]
+        last_name = request.form["last_name"]
+
+        email = request.form["email"]
+        address = request.form["address"]
+
+        username = request.form["user_name"]
+        password = request.form["password"]
+        comfirm_password = request.form["verify_password"]
+
+        conn = connect_db()
+
+        cursor = conn.cursor()
+
+        if comfirm_password != password:
+            flash("Sorry, those passwords do not match")
+        elif len(password) < 12:
+            flash("Sorry, that password is too shoort")
+        else:
+            try:
+                cursor.execute(f""" 
+                    INSERT INTO `Customer`
+                        (`first_name`, `last_name`, `username`, `password`, `email`, `address` )
+                    VALUES
+                        ( '{first_name}', '{last_name}', '{username}', '{password}', '{email}', '{address}' );
+                """)
+            except pymysql.err.IntegrityError:
+                flash("Sorry, that username/email is already in use")
+            else:
+                return redirect("/sign_in") 
+            finally:
+                cursor.close()
+                conn.close()
+
+
+    return render_template("sign_up.html.jinja")
+
+
+@app.route("/sign_in")
+def sign_in_page():
+
+    return render_template("sign_in.html.jinja")
