@@ -11,14 +11,19 @@
 
 <body style = "background-color:rgb(168, 250, 176)">
     {% include "components/navbar.html.jinja"%}
-    <div class = "container">
-    <form action="https://us-central1-steam-center-app-dev.cloudfunctions.net/formToEmail" method="post">
+    <div class = "container mt-2">
+    {%for message in get_flashed_messages() %}
+        <div class="alert alert-info" role="alert">
+            {{message}}
+        </div>
+    {% endfor %}
+    <form action="/sign_in" method="post">
       <h4 class="card-title text-success text-left ml-2 mt-3" >Username:</h4>
-      <input type="text" class="form-control "  placeholder="MyPl4ntR0cks" required>
+      <input type="text" class="form-control "  name = "username" placeholder="MyPl4ntR0cks" required>
       <br>
       
       <h4 class="card-title text-success text-left ml-2" >Password:</h4>
-      <input type="password" class="form-control"  placeholder="Password" required>
+      <input type="password" class="form-control"  name = "password" placeholder="Password" required>
       <br>
            
       <div class="d-grid gap-2 col-4 mx-auto">
