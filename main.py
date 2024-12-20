@@ -104,6 +104,27 @@ def product_page(product_id):
     return render_template("product.html.jinja", product = result)
 
 
+
+@app.route("/product/<product_id>/cart", methods = ["POST"])
+@flask_login.login_required
+def add_to_cart(product_id):
+    quantity = request.form["quantity"]
+    customer_id = flask_login.current_user.id
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute(f"""INSERT INTO 
+                    `Cart` (`customer_id`, `product_id`, `quantity`) 
+                   VALUES ('{customer_id}','{product_id}','{quantity}')""")
+    
+    cursor.close()
+    conn.close()
+
+    return redirect('/cart')
+
+
+
 @app.route("/sign_up", methods =["POST", "GET"])
 def sign_up_page():
     if flask_login.current_user.is_authenticated:
@@ -188,4 +209,4 @@ def sign_out():
 @app.route('/cart')
 @flask_login.login_required
 def cart():
-    return "cart page"
+    return render_template("cart.html.jinja")

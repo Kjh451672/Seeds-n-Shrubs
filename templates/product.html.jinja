@@ -24,7 +24,14 @@
         <div class = "col-3">
         <h2 class = "text-success mt-auto p-2">${{product["price"]}}</h2>
         <br>
-        <button type="button" class="btn btn-success">Add To Cart</button>
+        <form method = "post" action = "/product/{{product['id']}}/cart">
+    
+            <div class="mb-3">
+                <label for="qty" class="form-label" style = "color: rgb(1, 101, 12);" class = "mt-2 text-center">Qty</label>
+                <input type="number" class="form-control" id="qty" min = "1" value = "1" max = "5" name = "quantity">
+            </div>
+        <button type="submit" class="btn btn-success w-100">Add To Cart</button>
+        </form>
         </div>
       </div>
     </div>
