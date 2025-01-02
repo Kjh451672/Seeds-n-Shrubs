@@ -209,4 +209,26 @@ def sign_out():
 @app.route('/cart')
 @flask_login.login_required
 def cart():
-    return render_template("cart.html.jinja")
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    customer_id = flask_login.current_user.id
+
+    cursor.execute(f"""
+        SELECT 
+            `product`, 
+            `price`, 
+            `quantity`, 
+            `image`, 
+            `product_id`, 
+            `Cart`.`id` 
+        FROM `Cart` 
+        JOIN `Product` ON `product_id` = `Product`.`id` 
+        WHERE `customer_id` = {customer_id};""")
+
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("cart.html.jinja", products = results)
