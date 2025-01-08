@@ -104,7 +104,6 @@ def product_page(product_id):
     return render_template("product.html.jinja", product = result)
 
 
-
 @app.route("/product/<product_id>/cart", methods = ["POST"])
 @flask_login.login_required
 def add_to_cart(product_id):
@@ -116,7 +115,10 @@ def add_to_cart(product_id):
 
     cursor.execute(f"""INSERT INTO 
                     `Cart` (`customer_id`, `product_id`, `quantity`) 
-                   VALUES ('{customer_id}','{product_id}','{quantity}')""")
+                   VALUES ('{customer_id}','{product_id}','{quantity}')
+                   ON DUPLICATE KEY UPDATE 
+                   `quantity` = `quantity` + {quantity}
+                   """)
     
     cursor.close()
     conn.close()
@@ -228,7 +230,76 @@ def cart():
 
     results = cursor.fetchall()
 
+    total = 0
+    for products in results:
+      quantity =   products["quantity"]
+      price = products["price"]
+      item_total = quantity * price
+      total = item_total + total
+
     cursor.close()
     conn.close()
 
-    return render_template("cart.html.jinja", products = results)
+    return render_template("cart.html.jinja", products = results, total = total)
+
+
+@app.route("/cart/<cart_id>/del", methods = ["POST"])
+@flask_login.login_required
+def delete(cart_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute(f"DELETE FROM `Cart` WHERE `id` = {cart_id};")
+
+    cursor.close()
+    conn.close()
+    return redirect("/cart")
+
+
+@app.route("/cart/<cart_id>/update", methods = ["POST"])
+@flask_login.login_required
+def update(cart_id):
+    quantity = request.form["qty"]
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute(f"UPDATE `Cart` SET `quantity` = {quantity} WHERE `id` = {cart_id};")
+
+    cursor.close()
+    conn.close()
+    return redirect("/cart")
+
+
+@app.route("/check_out")
+@flask_login.login_required
+def check_out():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    customer_id = flask_login.current_user.id
+
+    cursor.execute(f"""
+        SELECT 
+            `product`, 
+            `price`, 
+            `quantity`, 
+            `image`, 
+            `product_id`, 
+            `Cart`.`id` 
+        FROM `Cart` 
+        JOIN `Product` ON `product_id` = `Product`.`id` 
+        WHERE `customer_id` = {customer_id};""")
+
+    results = cursor.fetchall()
+
+    total = 0
+    for products in results:
+      quantity =   products["quantity"]
+      price = products["price"]
+      item_total = quantity * price
+      total = item_total + total
+
+    cursor.close()
+    conn.close()
+    return render_template("check_out.html.jinja", total = total, products = results)

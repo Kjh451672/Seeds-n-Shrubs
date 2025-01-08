@@ -22,7 +22,7 @@
         <p class = "text-success ">{{product["description"]}}</p>
         </div>
         <div class = "col-3">
-        <h2 class = "text-success mt-auto p-2">${{product["price"]}}</h2>
+        <h2 class = "text-success mt-auto p-2">${{"%.2f" | format(product["price"])}}</h2>
         <br>
         <form method = "post" action = "/product/{{product['id']}}/cart">
     
