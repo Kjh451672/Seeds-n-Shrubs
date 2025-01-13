@@ -14,7 +14,7 @@
   <h2 style="color: rgb(1, 101, 12);" class="mt-2 text-center">Check Out</h2>
   <div class="container">
     <div class="row">
-      <div class="col-4">
+      <div class="col-5">
         <div class="table-responsive">
           <table class="table">
             <thead>
@@ -40,8 +40,23 @@
           <h5 style="color: rgb(1, 101, 12);" class = "text-center">Total: ${{"%.2f" | format(total)}}</h5>
         </div>
       </div>
-      <div class = "col-8">
-        <form>
+      <div class = "col-7">
+
+        <form action = "/sales" method = "post">
+
+          <h4 class="card-title text-success text-left ml-2 mt-3" >Billing Address:</h4>
+          <input type="text" class="form-control "  name = "address" placeholder="1234 Mangrove Ave." required>
+          <br>
+      
+          <h4 class="card-title text-success text-left ml-2" >Card number:</h4>
+          <input type="text" class="form-control"  name = "payment" placeholder="XXXX-XXXX-XXXX-XXXX" required>
+          <br>
+
+          <div class="d-grid gap-2 col-4 mx-auto">
+            <button href="/thank_you" type = "submit" class="btn btn-success btn-md">Comfirm Purchase</button>
+            <a href="/cart" class="btn btn-danger btn-md">Return To Cart</a>
+          </div>
+
         </form>
       </div>
     </div>
@@ -52,9 +67,6 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
 
-  <div class="d-grid gap-2 col-4 mx-auto">
-    <a href="/cart" class="btn btn-danger btn-md">Return To Cart</a> <a href="#" class="btn btn-success btn-md">Comfirm Purchase</a>
-  </div>
 
 </body>
 

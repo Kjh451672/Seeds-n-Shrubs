@@ -98,10 +98,25 @@ def product_page(product_id):
     result = cursor.fetchone()
     if result is None:
         abort(404)
+
+    cursor.execute(f""" SELECT
+                            `customer_id`,
+                            `product_id`,
+                            `written_review`,
+                            `rating`,
+                            `Review`.`timestamp`,
+                            `username`
+                        FROM `Review`
+                        JOIN `Customer` ON `customer_id` = `Customer`.`id`
+                        WHERE `product_id` = {product_id};
+                    """)
+    
+    results = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
-    return render_template("product.html.jinja", product = result)
+    return render_template("product.html.jinja", product = result, reviews = results)
 
 
 @app.route("/product/<product_id>/cart", methods = ["POST"])
@@ -232,10 +247,10 @@ def cart():
 
     total = 0
     for products in results:
-      quantity =   products["quantity"]
-      price = products["price"]
-      item_total = quantity * price
-      total = item_total + total
+        quantity =   products["quantity"]
+        price = products["price"]
+        item_total = quantity * price
+        total = item_total + total
 
     cursor.close()
     conn.close()
@@ -293,13 +308,81 @@ def check_out():
 
     results = cursor.fetchall()
 
-    total = 0
-    for products in results:
-      quantity =   products["quantity"]
-      price = products["price"]
-      item_total = quantity * price
-      total = item_total + total
+    if len(results) > 0:
 
+        total = 0
+        for products in results:
+            quantity =   products["quantity"]
+            price = products["price"]
+            item_total = quantity * price
+            total = item_total + total
+
+        cursor.close()
+        conn.close()
+
+        return render_template("check_out.html.jinja", products = results, total = total)
+    else:
+        return redirect("/cart")
+
+
+@app.route("/sales", methods = ["POST"])
+def sales():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    customer_id = flask_login.current_user.id
+
+    address = request.form["address"]
+    payment = request.form["payment"]
+
+    cursor.execute(f"""
+                   INSERT INTO `Sale`
+                      (`address`, `payment`, `customer_id`)
+                   VALUES
+                      ('{address}', '{payment}', '{customer_id}');
+                   """)
+    
+    sale_id = cursor.lastrowid
+
+    cursor.execute(f""" SELECT * FROM `Cart` WHERE `customer_id` = {customer_id};""")
+    
+    results = cursor.fetchall()
+
+    for products in results:
+        product_id = products["product_id"]
+        quantity = products["quantity"]
+        cursor.execute(f""" 
+                        INSERT INTO `SaleProduct`
+                            (`product_id`, `quantity`, `sale_id`)
+                        VALUES
+                            ('{product_id}','{quantity}', '{sale_id}');
+                       """)
+    cursor.execute(f"DELETE FROM `Cart` WHERE `customer_id` = '{customer_id}';")
     cursor.close()
     conn.close()
-    return render_template("check_out.html.jinja", total = total, products = results)
+    return redirect("/thank_you")
+
+
+@app.route("/thank_you")
+@flask_login.login_required
+def thank_you():
+    return render_template("thank_you.html.jinja")
+
+@app.route("/product/<product_id>/review", methods = ["POST"])
+@flask_login.login_required
+def review(product_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    customer_id = flask_login.current_user.id
+
+    written_review = request.form["written_review"]
+    rating = request.form["rating"]
+
+    cursor.execute(f"""INSERT INTO `Review`
+                   (`customer_id`, `product_id`, `written_review`, `rating`)
+                   VALUES
+                   ('{customer_id}','{product_id}','{written_review}','{rating}')
+                    """)
+
+    return redirect(f"/product/{product_id}")
