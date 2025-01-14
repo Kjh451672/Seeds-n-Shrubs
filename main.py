@@ -96,6 +96,7 @@ def product_page(product_id):
     cursor.execute(f"SELECT * FROM `Product` WHERE `id` = {product_id};")
 
     result = cursor.fetchone()
+
     if result is None:
         abort(404)
 
@@ -116,7 +117,20 @@ def product_page(product_id):
     cursor.close()
     conn.close()
 
-    return render_template("product.html.jinja", product = result, reviews = results)
+    total = 0
+    try:
+
+        for rating in results:
+            number = rating['rating']
+
+            total += number
+        count = len(results)
+        average = total/count
+    except:
+        average = 0
+    
+
+    return render_template("product.html.jinja", product = result, reviews = results, average = average)
 
 
 @app.route("/product/<product_id>/cart", methods = ["POST"])
@@ -382,7 +396,12 @@ def review(product_id):
     cursor.execute(f"""INSERT INTO `Review`
                    (`customer_id`, `product_id`, `written_review`, `rating`)
                    VALUES
-                   ('{customer_id}','{product_id}','{written_review}','{rating}')
+                   ("{customer_id}","{product_id}","{written_review}","{rating}")
+                   ON DUPLICATE KEY UPDATE 
+                   `written_review` = "{written_review}",
+                   `rating` = "{rating}";
                     """)
 
     return redirect(f"/product/{product_id}")
+
+
