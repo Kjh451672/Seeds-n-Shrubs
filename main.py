@@ -404,4 +404,52 @@ def review(product_id):
 
     return redirect(f"/product/{product_id}")
 
+@app.route("/past_orders")
+@flask_login.login_required
+def past_orders():
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    customer_id = flask_login.current_user.id
+
+
+    cursor.execute(f"""
+        SELECT * FROM `Sale` WHERE `customer_id` = "{customer_id}" """)
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("past_orders.html.jinja", sales = results)
+
+@app.route("/past_orders/<sale_id>")
+@flask_login.login_required
+def past_user_order(sale_id):
+
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute(f"""
+        SELECT 
+            `product`, 
+            `price`, 
+            `quantity`, 
+            `image`, 
+            `product_id`, 
+            `SaleProduct`.`id` 
+        FROM `SaleProduct` 
+        JOIN `Product` ON `product_id` = `Product`.`id` 
+        WHERE `sale_id` = {sale_id};""")
+
+    
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("past_user_order.html.jinja", products = results)
+
+
 

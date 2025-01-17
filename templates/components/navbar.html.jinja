@@ -15,6 +15,9 @@
         <li class="nav-item">
           <a style = "color: rgb(5, 67, 12);" class="nav-link" href="/cart">Cart</a>
         </li>
+        <li class="nav-item">
+          <a style = "color: rgb(5, 67, 12);" class="nav-link" href="/past_orders">Previous Orders</a>
+        </li>
       </ul>
 
       <form class="d-flex ms-auto" role="search" action = "/browse">
@@ -22,8 +25,8 @@
         <button class="btn btn-success" type="submit">Search</button>
       </form>
         {%if current_user.is_authenticated %}
-            Hi {{current_user.username }}
-            <a href = "/sign_out" class = "btn btn-outline-light">Log Out</a>
+             <span style = "color: rgb(255, 255, 255);">Hi, {{current_user.username }}</span>
+             <a href = "/sign_out" class = "btn btn-outline-light ">Log Out</a>
         {%else%}
             <a href = "/sign_in" class = "btn btn-outline-light">Log In</a>
         {% endif %}
