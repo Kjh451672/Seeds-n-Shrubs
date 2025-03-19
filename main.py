@@ -50,7 +50,7 @@ def load_user(user_id):
 
 def connect_db():
     conn = pymysql.connect(
-        host = "10.100.34.80",
+        host = "db.steamcenter.tech",
         database = "kheaven_seeds_n_shrubs",
         user = 'kheaven',
         password = conf.password,
